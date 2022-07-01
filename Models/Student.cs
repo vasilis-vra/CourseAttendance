@@ -19,6 +19,6 @@ namespace CourseAttendanceAPI.Models
         [Required]
         public string Email { get; set; }
 
-        public List<Enrollment>? Enrollments { get; set; }
+        public ICollection<Course>? Courses { get; set; }
     }
 }

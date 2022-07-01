@@ -8,8 +8,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 var sqlConnectionBuilder = new SqlConnectionStringBuilder();
 sqlConnectionBuilder.ConnectionString = builder.Configuration.GetConnectionString("SqlConnectionString");
-sqlConnectionBuilder.UserID = builder.Configuration["UserId"];
-sqlConnectionBuilder.Password = builder.Configuration["Password"];
+//Using secrets for SA user authentication in sql server
+//sqlConnectionBuilder.UserID = builder.Configuration["UserId"];
+//sqlConnectionBuilder.Password = builder.Configuration["Password"];
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(sqlConnectionBuilder.ConnectionString));
 

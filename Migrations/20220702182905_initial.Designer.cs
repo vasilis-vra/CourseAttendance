@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CourseAttendanceAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20220701150515_initial")]
+    [Migration("20220702182905_initial")]
     partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

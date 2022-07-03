@@ -12,7 +12,7 @@ namespace CourseAttendanceAPI.Models
         public string Name { get; set; }
 
         [StringLength(250, MinimumLength = 3)]
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         public string? Semester { get; set; }
 

@@ -14,12 +14,13 @@ This project is a REST API implemented using the .NET 6 Framework.
 * REST
 * Clean code
 * Clean architecture
+* SOLID principles
 
 ## Technologies
 * .NET 6
 * Microsoft SQL Server
 * C#
-* Entity Framework
+* Entity Framework Core 6
 
 ## Setup
 1. Clone the project from this repository.

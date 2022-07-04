@@ -37,7 +37,7 @@ namespace CourseAttendanceAPI.Dtos
             }
         }
 
-        public List<CourseDto> courseDtos(List<Course> courses)
+        public IEnumerable<CourseDto> courseDtos(List<Course> courses)
         {
             List<CourseDto> courseDtos = new List<CourseDto>();
             courses.ForEach(course => courseDtos.Add(new CourseDto(course)));

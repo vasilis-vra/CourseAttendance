@@ -16,6 +16,6 @@ namespace CourseAttendanceAPI.Models
 
         public string? Semester { get; set; }
 
-        public ICollection<Student>? Students { get; set; }
+        public ICollection<CourseStudent> Students { get; set; }
     }
 }

@@ -6,9 +6,9 @@ namespace CourseAttendanceAPI.Services
     {
         public Task<CourseDto> CreateCourse(CourseDto courseDto);
 
-        public Task<CourseDto> GetCourseById(Guid courseId);
+        public Task<CourseDto>? GetCourseById(Guid courseId);
 
-        public Task<List<CourseDto>> GetAllCourses();
+        public Task<IEnumerable<CourseDto>> GetAllCourses();
 
         public Task<bool> DeleteCourse(Guid courseId);
     }

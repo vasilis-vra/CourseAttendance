@@ -39,12 +39,5 @@ namespace CourseAttendanceAPI.Dtos
                 throw new InvalidModelException("Invalid model input to StudentDto constructor.");
             }
         }
-
-        public IEnumerable<StudentDto> studentDtos(List<Student> students)
-        {
-            List<StudentDto> studentDtos = new List<StudentDto>();
-            students.ForEach(student => studentDtos.Add(new StudentDto(student)));
-            return studentDtos;
-        }
     }
 }

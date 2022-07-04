@@ -8,12 +8,10 @@ namespace CourseAttendanceAPI.Services.Implementations
     public class CourseService : ICourseService
     {
         private readonly AppDbContext _context;
-        private CourseDto _courseDto;
 
-        public CourseService(AppDbContext context, CourseDto course)
+        public CourseService(AppDbContext context)
         {
             _context = context;
-            _courseDto = course;
         }
 
         public async Task<CourseDto> CreateCourse(CourseDto courseDto)
@@ -51,7 +49,7 @@ namespace CourseAttendanceAPI.Services.Implementations
         public async Task<IEnumerable<CourseDto>> GetAllCourses()
         {
             var courses = await _context.Courses.ToListAsync();
-            return _courseDto.courseDtos(courses);
+            return courseDtos(courses);
 
         }
 
@@ -64,6 +62,13 @@ namespace CourseAttendanceAPI.Services.Implementations
             var course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
 
             return new CourseDto(course);
+        }
+
+        private IEnumerable<CourseDto> courseDtos(List<Course> courses)
+        {
+            List<CourseDto> courseDtos = new List<CourseDto>();
+            courses.ForEach(course => courseDtos.Add(new CourseDto(course)));
+            return courseDtos;
         }
     }
 }

@@ -8,12 +8,10 @@ namespace CourseAttendanceAPI.Services.Implementations
     public class StudentService : IStudentService
     {
         private readonly AppDbContext _context;
-        private StudentDto _studentDto;
 
-        public StudentService(AppDbContext context, StudentDto studentDto)
+        public StudentService(AppDbContext context)
         {
             _context = context;
-            _studentDto = studentDto;
         }
 
         public async Task<StudentDto> CreateStudent(StudentDto studentDto)
@@ -51,7 +49,7 @@ namespace CourseAttendanceAPI.Services.Implementations
         public async Task<IEnumerable<StudentDto>> GetAllStudents()
         {
             var students = await _context.Students.ToListAsync();
-            return _studentDto.studentDtos(students);
+            return studentDtos(students);
         }
 
         public async Task<StudentDto>? GetStudentById(Guid studentId)
@@ -63,6 +61,13 @@ namespace CourseAttendanceAPI.Services.Implementations
             var student = await _context.Students.FirstOrDefaultAsync(s => s.Id == studentId);
 
             return new StudentDto(student);
+        }
+
+        private IEnumerable<StudentDto> studentDtos(List<Student> students)
+        {
+            List<StudentDto> studentDtos = new List<StudentDto>();
+            students.ForEach(student => studentDtos.Add(new StudentDto(student)));
+            return studentDtos;
         }
     }
 }

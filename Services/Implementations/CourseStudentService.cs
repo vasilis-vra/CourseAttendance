@@ -9,12 +9,10 @@ namespace CourseAttendanceAPI.Services.Implementations
     public class CourseStudentService : ICourseStudentService
     {
         private readonly AppDbContext _context;
-        private CourseStudentDto _courseStudentDto;
 
-        public CourseStudentService(AppDbContext context, CourseStudentDto courseStudentDto)
+        public CourseStudentService(AppDbContext context)
         {
             _context = context;
-            _courseStudentDto = courseStudentDto;
         }
 
         public async Task<CourseStudentDto> CreateEnrollment(CourseStudentDto enrollmentDto)
@@ -58,7 +56,7 @@ namespace CourseAttendanceAPI.Services.Implementations
 
             var courseEnrollments = await _context.Enrollments
                 .Where(e => e.CourseId == courseId).ToListAsync();
-            return _courseStudentDto.enrollmentDtos(courseEnrollments);
+            return enrollmentDtos(courseEnrollments);
         }
 
         public async Task<IEnumerable<CourseStudentDto>> GetEnrollmentsByStudentId(Guid studentId)
@@ -70,7 +68,14 @@ namespace CourseAttendanceAPI.Services.Implementations
 
             var courseEnrollments = await _context.Enrollments
                 .Where(e => e.StudentId == studentId).ToListAsync();
-            return _courseStudentDto.enrollmentDtos(courseEnrollments);
+            return enrollmentDtos(courseEnrollments);
+        }
+
+        private IEnumerable<CourseStudentDto> enrollmentDtos(List<CourseStudent> enrollments)
+        {
+            List<CourseStudentDto> enrollmentDtos = new List<CourseStudentDto>();
+            enrollments.ForEach(enrollment => enrollmentDtos.Add(new CourseStudentDto(enrollment)));
+            return enrollmentDtos;
         }
     }
 }

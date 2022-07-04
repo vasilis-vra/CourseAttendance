@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using CourseAttendanceAPI.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using CourseAttendanceAPI.Models;
+using CourseAttendanceAPI.Services;
+using CourseAttendanceAPI.Dtos;
+using CourseAttendanceAPI.Exceptions;
 
 namespace CourseAttendanceAPI.Controllers
 {
@@ -14,80 +10,60 @@ namespace CourseAttendanceAPI.Controllers
     [ApiController]
     public class CoursesController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private ICourseService _courseService;
 
-        public CoursesController(AppDbContext context)
+        public CoursesController(ICourseService courseService)
         {
-            _context = context;
+            _courseService = courseService;
         }
 
-        // GET: api/Courses
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Course>>> GetCourses()
+        public async Task<ActionResult<IEnumerable<CourseDto>>> GetCourses()
         {
-            if (_context.Courses == null)
+            var courses = await _courseService.GetAllCourses();
+
+            if (!courses.Any())
             {
                 return NotFound();
             }
-            return await _context.Courses.ToListAsync();
+            return Ok(courses);
         }
 
-        // GET: api/Courses/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Course>> GetCourse(Guid id)
+        public async Task<ActionResult<CourseDto>> GetCourse(Guid id)
         {
-            if (_context.Courses == null)
-            {
-                return NotFound();
-            }
-            var course = await _context.Courses.FindAsync(id);
+            var course = await _courseService.GetCourseById(id);
 
             if (course == null)
             {
                 return NotFound();
             }
 
-            return course;
+            return Ok(course);
         }
 
-        // POST: api/Courses
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Course>> PostCourse(Course course)
+        public async Task<ActionResult<CourseDto>> PostCourse(CourseDto courseDto)
         {
-            if (_context.Courses == null)
+            var newCourse = await _courseService.CreateCourse(courseDto);
+            if (newCourse.Id == null)
             {
-                return Problem("Entity set 'AppDbContext.Courses'  is null.");
+                return NotFound();
             }
-            _context.Courses.Add(course);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetCourse", new { id = course.Id }, course);
+            return CreatedAtAction("GetCourse", new { id = courseDto.Id }, courseDto);
         }
 
-        // DELETE: api/Courses/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCourse(Guid id)
         {
-            if (_context.Courses == null)
+            bool isDeleted = await _courseService.DeleteCourse(id);
+
+            if (isDeleted == false)
             {
-                return NotFound();
-            }
-            var course = await _context.Courses.FindAsync(id);
-            if (course == null)
-            {
-                return NotFound();
+                throw new OperationFailedException("Could not delete selected course.");
             }
 
-            _context.Courses.Remove(course);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool CourseExists(Guid id)
-        {
-            return (_context.Courses?.Any(e => e.Id == id)).GetValueOrDefault();
+            return Ok();
         }
     }
 }

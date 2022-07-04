@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CourseAttendanceAPI.Data;
 using CourseAttendanceAPI.Models;
+using CourseAttendanceAPI.Services;
+using CourseAttendanceAPI.Dtos;
+using CourseAttendanceAPI.Exceptions;
 
 namespace CourseAttendanceAPI.Controllers
 {
@@ -14,80 +17,60 @@ namespace CourseAttendanceAPI.Controllers
     [ApiController]
     public class StudentsController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private IStudentService _studentService;
 
-        public StudentsController(AppDbContext context)
+        public StudentsController(IStudentService studentService)
         {
-            _context = context;
+            _studentService = studentService;
         }
 
-        // GET: api/Students
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Student>>> GetStudents()
+        public async Task<ActionResult<IEnumerable<StudentDto>>> GetStudents()
         {
-            if (_context.Students == null)
+            var students = await _studentService.GetAllStudents();
+
+            if (!students.Any())
             {
                 return NotFound();
             }
-            return await _context.Students.ToListAsync();
+            return Ok(students);
         }
 
-        // GET: api/Students/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Student>> GetStudent(Guid id)
+        public async Task<ActionResult<StudentDto>> GetStudent(Guid id)
         {
-            if (_context.Students == null)
-            {
-                return NotFound();
-            }
-            var student = await _context.Students.FindAsync(id);
+            var student = await _studentService.GetStudentById(id);
 
             if (student == null)
             {
                 return NotFound();
             }
 
-            return student;
+            return Ok(student);
         }
 
-        // POST: api/Students
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Student>> PostStudent(Student student)
+        public async Task<ActionResult<StudentDto>> PostStudent(StudentDto studentDto)
         {
-            if (_context.Students == null)
+            var newStudent = await _studentService.CreateStudent(studentDto);
+            if (newStudent.Id == null)
             {
-                return Problem("Entity set 'AppDbContext.Students'  is null.");
+                return NotFound();
             }
-            _context.Students.Add(student);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetStudent", new { id = student.Id }, student);
+            return CreatedAtAction("GetStudent", new { id = studentDto.Id }, studentDto);
         }
 
-        // DELETE: api/Students/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteStudent(Guid id)
         {
-            if (_context.Students == null)
+            bool isDeleted = await _studentService.DeleteStudent(id);
+
+            if (isDeleted == false)
             {
-                return NotFound();
-            }
-            var student = await _context.Students.FindAsync(id);
-            if (student == null)
-            {
-                return NotFound();
+                throw new OperationFailedException("Could not delete selected student.");
             }
 
-            _context.Students.Remove(student);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool StudentExists(Guid id)
-        {
-            return (_context.Students?.Any(e => e.Id == id)).GetValueOrDefault();
+            return Ok();
         }
     }
 }

@@ -1,27 +1,69 @@
-﻿using CourseAttendanceAPI.Dtos;
+﻿using CourseAttendanceAPI.Data;
+using CourseAttendanceAPI.Dtos;
+using CourseAttendanceAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace CourseAttendanceAPI.Services.Implementations
 {
     public class CourseService : ICourseService
     {
-        public Task<CourseDto> CreateCourse(CourseDto courseDto)
+        private readonly AppDbContext _context;
+        private CourseDto _courseDto;
+
+        public CourseService(AppDbContext context, CourseDto course)
         {
-            throw new NotImplementedException();
+            _context = context;
+            _courseDto = course;
         }
 
-        public Task<bool> DeleteCourse(Guid courseId)
+        public async Task<CourseDto> CreateCourse(CourseDto courseDto)
         {
-            throw new NotImplementedException();
+            if (courseDto == null)
+            {
+                throw new ArgumentNullException(nameof(courseDto));
+            }
+
+            Course newCourse = new Course();
+            newCourse.Name = courseDto.Name;
+            newCourse.Description = courseDto.Description;
+            newCourse.Semester = courseDto.Semester;
+
+            _context.Courses.Add(newCourse);
+            await _context.SaveChangesAsync();
+
+            return new CourseDto(newCourse);
         }
 
-        public Task<List<CourseDto>> GetAllCourses()
+        public async Task<bool> DeleteCourse(Guid courseId)
         {
-            throw new NotImplementedException();
+            if (courseId == null)
+            {
+                throw new ArgumentNullException(nameof(courseId));
+            }
+
+            var course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
+            if (course == null) return false;
+            _context.Courses.Remove(course);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        public Task<CourseDto> GetCourseById(Guid courseId)
+        public async Task<IEnumerable<CourseDto>> GetAllCourses()
         {
-            throw new NotImplementedException();
+            var courses = await _context.Courses.ToListAsync();
+            return _courseDto.courseDtos(courses);
+
+        }
+
+        public async Task<CourseDto>? GetCourseById(Guid courseId)
+        {
+            if (courseId == null)
+            {
+                throw new ArgumentNullException(nameof(courseId));
+            }
+            var course = await _context.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
+
+            return new CourseDto(course);
         }
     }
 }
